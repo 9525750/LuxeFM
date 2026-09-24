@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luxe FM — Интернет-радио</title>
+  <meta name="description" content="Luxe FM — утончённое интернет-радио. Слушайте лучшую музыку 24/7.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-bg: #0a0a0a;
+      --color-bg-card: #141414;
+      --color-bg-card-hover: #1a1a1a;
+      --color-gold: #c9a96e;
+      --color-gold-light: #dfc291;
+      --color-gold-dim: #8a7244;
+      --color-text: #e8e4de;
+      --color-text-dim: #8a857d;
+      --color-border: #2a2520;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body: 'Jost', 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-weight: 300;
+      background: var(--color-bg);
+      color: var(--color-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 0%, rgba(201, 169, 110, 0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 80% 60% at 50% 100%, rgba(201, 169, 110, 0.03) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+    }
+
+    /* --- Logo & Brand --- */
+    .brand {
+      text-align: center;
+      user-select: none;
+    }
+
+    .brand-name {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 3.2rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-gold);
+      line-height: 1;
+    }
+
+    .brand-tagline {
+      font-family: var(--font-body);
+      font-weight: 300;
+      font-size: 0.75rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--color-text-dim);
+      margin-top: 8px;
+    }
+
+    .divider {
+      width: 48px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--color-gold-dim), transparent);
+      margin: 0 auto;
+    }
+
+    /* --- Player Card --- */
+    .player {
+      width: 100%;
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      transition: background 0.3s ease;
+    }
+
+    .player:hover {
+      background: var(--color-bg-card-hover);
+    }
+
+    /* --- Now Playing --- */
+    .now-playing {
+      text-align: center;
+      min-height: 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .now-playing-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--color-gold-dim);
+      margin-bottom: 4px;
+    }
+
+    .track-title {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 1.35rem;
+      color: var(--color-text);
+      line-height: 1.3;
+      transition: opacity 0.4s ease;
+    }
+
+    .track-artist {
+      font-weight: 300;
+      font-size: 0.85rem;
+      color: var(--color-text-dim);
+      transition: opacity 0.4s ease;
+    }
+
+    .track-title.updating,
+    .track-artist.updating {
+      opacity: 0;
+    }
+
+    /* --- Play Button --- */
+    .play-btn {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 1.5px solid var(--color-gold);
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .play-btn:hover {
+      background: rgba(201, 169, 110, 0.1);
+      border-color: var(--color-gold-light);
+      transform: scale(1.05);
+    }
+
+    .play-btn:active {
+      transform: scale(0.97);
+    }
+
+    .play-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--color-gold);
+      transition: fill 0.3s ease;
+    }
+
+    .play-btn:hover svg {
+      fill: var(--color-gold-light);
+    }
+
+    .play-icon-play {
+      margin-left: 3px;
+    }
+
+    .play-icon-pause {
+      display: none;
+    }
+
+    .play-btn.playing .play-icon-play {
+      display: none;
+    }
+
+    .play-btn.playing .play-icon-pause {
+      display: block;
+    }
+
+    /* --- Visualizer --- */
+    .visualizer {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 20px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .visualizer.active {
+      opacity: 1;
+    }
+
+    .visualizer-bar {
+      width: 3px;
+      background: var(--color-gold);
+      border-radius: 1.5px;
+      transform-origin: bottom;
+      animation: none;
+    }
+
+    .visualizer.active .visualizer-bar {
+      animation: bar-bounce 1.2s ease-in-out infinite;
+    }
+
+    .visualizer-bar:nth-child(1) { height: 6px; animation-delay: 0s; }
+    .visualizer-bar:nth-child(2) { height: 12px; animation-delay: 0.15s; }
+    .visualizer-bar:nth-child(3) { height: 8px; animation-delay: 0.3s; }
+    .visualizer-bar:nth-child(4) { height: 16px; animation-delay: 0.1s; }
+    .visualizer-bar:nth-child(5) { height: 10px; animation-delay: 0.25s; }
+
+    @keyframes bar-bounce {
+      0%, 100% { transform: scaleY(0.4); }
+      50% { transform: scaleY(1); }
+    }
+
+    /* --- Volume --- */
+    .volume-control {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .volume-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      fill: var(--color-text-dim);
+      cursor: pointer;
+      transition: fill 0.2s ease;
+    }
+
+    .volume-icon:hover {
+      fill: var(--color-gold);
+    }
+
+    .volume-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 3px;
+      background: var(--color-border);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--color-gold);
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+
+    .volume-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.3);
+      background: var(--color-gold-light);
+    }
+
+    .volume-slider::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--color-gold);
+      border: none;
+      cursor: pointer;
+    }
+
+    .volume-value {
+      font-size: 0.7rem;
+      color: var(--color-text-dim);
+      min-width: 28px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* --- Status --- */
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-text-dim);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-gold-dim);
+      transition: background 0.3s ease;
+    }
+
+    .status-dot.live {
+      background: #6ec96e;
+      box-shadow: 0 0 6px rgba(110, 201, 110, 0.4);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    .status-dot.error {
+      background: #c96e6e;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* --- Footer --- */
+    .footer {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: var(--color-text-dim);
+      text-align: center;
+      opacity: 0.5;
+    }
+
+    /* --- Responsive --- */
+    @media (max-width: 480px) {
+      .brand-name {
+        font-size: 2.4rem;
+      }
+      .player {
+        padding: 24px 20px;
+      }
+      .container {
+        gap: 32px;
+      }
+    }
+
+    @media (min-height: 800px) {
+      .container {
+        gap: 48px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="brand">
+      <h1 class="brand-name">Luxe FM</h1>
+      <p class="brand-tagline">Утончённое звучание</p>
+    </header>
+
+    <div class="divider"></div>
+
+    <main class="player">
+      <div class="now-playing">
+        <span class="now-playing-label">Сейчас в эфире</span>
+        <p class="track-title" id="trackTitle">Luxe FM</p>
+        <p class="track-artist" id="trackArtist">Нажмите play для начала</p>
+      </div>
+
+      <div class="visualizer" id="visualizer">
+        <span class="visualizer-bar"></span>
+        <span class="visualizer-bar"></span>
+        <span class="visualizer-bar"></span>
+        <span class="visualizer-bar"></span>
+        <span class="visualizer-bar"></span>
+      </div>
+
+      <button class="play-btn" id="playBtn" aria-label="Воспроизвести">
+        <svg class="play-icon-play" viewBox="0 0 24 24">
+          <polygon points="6,3 20,12 6,21"/>
+        </svg>
+        <svg class="play-icon-pause" viewBox="0 0 24 24">
+          <rect x="5" y="3" width="4" height="18" rx="1"/>
+          <rect x="15" y="3" width="4" height="18" rx="1"/>
+        </svg>
+      </button>
+
+      <div class="volume-control">
+        <svg class="volume-icon" id="volumeIcon" viewBox="0 0 24 24" aria-label="Громкость">
+          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 8.5v7a4.49 4.49 0 002.5-3.5zM14 3.23v2.06a6.51 6.51 0 010 13.42v2.06A8.51 8.51 0 0014 3.23z"/>
+        </svg>
+        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="75" aria-label="Регулировка громкости">
+        <span class="volume-value" id="volumeValue">75</span>
+      </div>
+
+      <div class="status">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Не подключено</span>
+      </div>
+    </main>
+
+    <footer class="footer">
+      &copy; 2026 Luxe FM
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // --- Configuration ---
+      const CONFIG = {
+        streamUrl: '/stream',
+        liveInfoUrl: '/api/live-info-v2/',
+        pollInterval: 10000,
+      };
+
+      // --- DOM ---
+      const audio = new Audio();
+      const playBtn = document.getElementById('playBtn');
+      const trackTitle = document.getElementById('trackTitle');
+      const trackArtist = document.getElementById('trackArtist');
+      const visualizer = document.getElementById('visualizer');
+      const volumeSlider = document.getElementById('volumeSlider');
+      const volumeValue = document.getElementById('volumeValue');
+      const volumeIcon = document.getElementById('volumeIcon');
+      const statusDot = document.getElementById('statusDot');
+      const statusText = document.getElementById('statusText');
+
+      let isPlaying = false;
+      let pollTimer = null;
+      let previousVolume = 75;
+
+      // --- Audio Setup ---
+      audio.preload = 'none';
+      audio.volume = 0.75;
+
+      // --- Play / Pause ---
+      playBtn.addEventListener('click', function () {
+        if (isPlaying) {
+          stop();
+        } else {
+          play();
+        }
+      });
+
+      function play() {
+        audio.src = CONFIG.streamUrl;
+        audio.load();
+        audio.play().then(function () {
+          isPlaying = true;
+          playBtn.classList.add('playing');
+          visualizer.classList.add('active');
+          setStatus('live', 'В эфире');
+          startPolling();
+        }).catch(function () {
+          setStatus('error', 'Ошибка воспроизведения');
+        });
+      }
+
+      function stop() {
+        audio.pause();
+        audio.removeAttribute('src');
+        audio.load();
+        isPlaying = false;
+        playBtn.classList.remove('playing');
+        visualizer.classList.remove('active');
+        setStatus('', 'Не подключено');
+        stopPolling();
+        updateTrack('Luxe FM', 'Нажмите play для начала');
+      }
+
+      // --- Audio Events ---
+      audio.addEventListener('waiting', function () {
+        if (isPlaying) setStatus('', 'Буферизация…');
+      });
+
+      audio.addEventListener('playing', function () {
+        setStatus('live', 'В эфире');
+      });
+
+      audio.addEventListener('error', function () {
+        if (isPlaying) {
+          setStatus('error', 'Нет соединения');
+          isPlaying = false;
+          playBtn.classList.remove('playing');
+          visualizer.classList.remove('active');
+          stopPolling();
+        }
+      });
+
+      // --- Volume ---
+      volumeSlider.addEventListener('input', function () {
+        var val = parseInt(this.value, 10);
+        audio.volume = val / 100;
+        volumeValue.textContent = val;
+        updateVolumeTrack(val);
+        if (val > 0) previousVolume = val;
+      });
+
+      volumeIcon.addEventListener('click', function () {
+        if (audio.volume > 0) {
+          previousVolume = parseInt(volumeSlider.value, 10);
+          audio.volume = 0;
+          volumeSlider.value = 0;
+          volumeValue.textContent = '0';
+          updateVolumeTrack(0);
+        } else {
+          audio.volume = previousVolume / 100;
+          volumeSlider.value = previousVolume;
+          volumeValue.textContent = previousVolume;
+          updateVolumeTrack(previousVolume);
+        }
+      });
+
+      function updateVolumeTrack(val) {
+        var pct = val + '%';
+        volumeSlider.style.background =
+          'linear-gradient(to right, var(--color-gold-dim) 0%, var(--color-gold-dim) ' +
+          pct + ', var(--color-border) ' + pct + ', var(--color-border) 100%)';
+      }
+
+      updateVolumeTrack(75);
+
+      // --- Now Playing ---
+      function startPolling() {
+        refreshNowPlaying();
+        pollTimer = setInterval(refreshNowPlaying, CONFIG.pollInterval);
+      }
+
+      function stopPolling() {
+        if (pollTimer) {
+          clearInterval(pollTimer);
+          pollTimer = null;
+        }
+      }
+
+      async function refreshNowPlaying() {
+        try {
+          var r = await fetch(CONFIG.liveInfoUrl);
+          if (!r.ok) return;
+          var d = await r.json();
+
+          var cur = d.station && d.station.tracks && d.station.tracks.current;
+          if (!cur && d.tracks) cur = d.tracks.current;
+          if (!cur && d.current) cur = d.current;
+
+          if (cur) {
+            var name = cur.name || cur.title || '';
+            var artist = '';
+            if (cur.metadata && cur.metadata.artist_name) {
+              artist = cur.metadata.artist_name;
+            } else if (cur.artist) {
+              artist = cur.artist;
+            }
+            if (name) updateTrack(name, artist);
+          }
+        } catch (e) {
+          // Silently ignore fetch errors to avoid disrupting playback
+        }
+      }
+
+      function updateTrack(title, artist) {
+        if (trackTitle.textContent === title && trackArtist.textContent === (artist || '')) return;
+
+        trackTitle.classList.add('updating');
+        trackArtist.classList.add('updating');
+
+        setTimeout(function () {
+          trackTitle.textContent = title;
+          trackArtist.textContent = artist || '';
+          trackTitle.classList.remove('updating');
+          trackArtist.classList.remove('updating');
+        }, 300);
+      }
+
+      // --- Status ---
+      function setStatus(state, text) {
+        statusDot.className = 'status-dot' + (state ? ' ' + state : '');
+        statusText.textContent = text;
+      }
+
+      // --- Keyboard ---
+      document.addEventListener('keydown', function (e) {
+        if (e.code === 'Space' && e.target === document.body) {
+          e.preventDefault();
+          playBtn.click();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
