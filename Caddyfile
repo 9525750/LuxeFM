@@ -1,0 +1,36 @@
+{$DOMAIN:localhost} {
+	# Фронтенд — статический сайт Luxe FM
+	root * /opt/luxefm/www
+	file_server
+
+	# LibreTime API — «сейчас играет» и прочее
+	handle /api/* {
+		reverse_proxy localhost:9001
+	}
+
+	# Админ-панель LibreTime
+	handle /legacy/* {
+		reverse_proxy localhost:8080
+	}
+	handle /js/* {
+		reverse_proxy localhost:8080
+	}
+	handle /css/* {
+		reverse_proxy localhost:8080
+	}
+
+	# Проксирование потока Icecast
+	handle /stream {
+		reverse_proxy localhost:8000 {
+			header_up Host {upstream_hostport}
+		}
+		header Access-Control-Allow-Origin *
+	}
+
+	# CORS для API
+	handle /api/* {
+		header Access-Control-Allow-Origin *
+		header Access-Control-Allow-Methods "GET, OPTIONS"
+		header Access-Control-Allow-Headers "Content-Type"
+	}
+}

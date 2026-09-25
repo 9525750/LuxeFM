@@ -1,0 +1,114 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: libretime
+      POSTGRES_USER: libretime
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U libretime"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-alpine
+    restart: unless-stopped
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: libretime
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-changeme}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  icecast:
+    image: libretime/icecast:2.4.4
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      ICECAST_SOURCE_PASSWORD: ${ICECAST_SOURCE_PASSWORD:-changeme}
+      ICECAST_ADMIN_PASSWORD: ${ICECAST_ADMIN_PASSWORD:-changeme}
+      ICECAST_RELAY_PASSWORD: ${ICECAST_RELAY_PASSWORD:-changeme}
+      ICECAST_HOSTNAME: ${DOMAIN:-localhost}
+      ICECAST_MAX_LISTENERS: 100
+
+  libretime-api:
+    image: ghcr.io/libretime/libretime-api:latest
+    restart: unless-stopped
+    ports:
+      - "9001:9001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - libretime-storage:/srv/libretime
+      - ./config.yml:/etc/libretime/config.yml:ro
+    environment:
+      LIBRETIME_GENERAL_PUBLIC_URL: https://${DOMAIN:-localhost}
+
+  libretime-worker:
+    image: ghcr.io/libretime/libretime-worker:latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - libretime-storage:/srv/libretime
+      - ./config.yml:/etc/libretime/config.yml:ro
+
+  libretime-analyzer:
+    image: ghcr.io/libretime/libretime-analyzer:latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - libretime-storage:/srv/libretime
+      - ./config.yml:/etc/libretime/config.yml:ro
+
+  libretime-playout:
+    image: ghcr.io/libretime/libretime-playout:latest
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      icecast:
+        condition: service_started
+    volumes:
+      - libretime-storage:/srv/libretime
+      - ./config.yml:/etc/libretime/config.yml:ro
+
+  libretime-legacy:
+    image: ghcr.io/libretime/libretime-legacy:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - libretime-storage:/srv/libretime
+      - ./config.yml:/etc/libretime/config.yml:ro
+
+volumes:
+  postgres-data:
+  rabbitmq-data:
+  libretime-storage:
