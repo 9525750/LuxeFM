@@ -96,6 +96,7 @@ services:
   playout:
     image: ghcr.io/libretime/libretime-playout:latest
     restart: unless-stopped
+    network_mode: service:liquidsoap
     depends_on:
       postgres:
         condition: service_healthy
