@@ -353,57 +353,6 @@
       50% { opacity: 0.5; }
     }
 
-    /* --- Autoplay Overlay --- */
-    .autoplay-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 100;
-      background: rgba(10, 10, 10, 0.92);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      cursor: pointer;
-      opacity: 1;
-      transition: opacity 0.5s ease;
-    }
-
-    .autoplay-overlay.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .autoplay-overlay-text {
-      font-family: var(--font-display);
-      font-size: 1.6rem;
-      color: var(--color-gold);
-      letter-spacing: 0.08em;
-    }
-
-    .autoplay-overlay-icon {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      border: 1.5px solid var(--color-gold);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.3s ease, transform 0.3s ease;
-    }
-
-    .autoplay-overlay:hover .autoplay-overlay-icon {
-      background: rgba(201, 169, 110, 0.1);
-      transform: scale(1.08);
-    }
-
-    .autoplay-overlay-icon svg {
-      width: 28px;
-      height: 28px;
-      fill: var(--color-gold);
-      margin-left: 4px;
-    }
-
     /* --- Footer --- */
     .footer {
       font-size: 0.65rem;
@@ -486,13 +435,6 @@
     </footer>
   </div>
 
-  <div class="autoplay-overlay" id="autoplayOverlay">
-    <div class="autoplay-overlay-icon">
-      <svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg>
-    </div>
-    <span class="autoplay-overlay-text">Нажмите, чтобы слушать</span>
-  </div>
-
   <script>
     (function () {
       'use strict';
@@ -515,8 +457,6 @@
       const volumeIcon = document.getElementById('volumeIcon');
       const statusDot = document.getElementById('statusDot');
       const statusText = document.getElementById('statusText');
-      const autoplayOverlay = document.getElementById('autoplayOverlay');
-
       let isPlaying = false;
       let pollTimer = null;
       let previousVolume = 75;
@@ -526,32 +466,15 @@
       audio.volume = 0.75;
 
       // --- Autoplay ---
-      function tryAutoplay() {
-        audio.src = CONFIG.streamUrl;
-        audio.load();
-        audio.play().then(function () {
-          isPlaying = true;
-          playBtn.classList.add('playing');
-          visualizer.classList.add('active');
-          setStatus('live', 'В эфире');
-          startPolling();
-          dismissOverlay();
-        }).catch(function () {
-          autoplayOverlay.style.display = '';
-        });
-      }
-
-      function dismissOverlay() {
-        autoplayOverlay.classList.add('hidden');
-        setTimeout(function () { autoplayOverlay.style.display = 'none'; }, 500);
-      }
-
-      autoplayOverlay.addEventListener('click', function () {
-        if (!isPlaying) play();
-        dismissOverlay();
-      });
-
-      tryAutoplay();
+      audio.src = CONFIG.streamUrl;
+      audio.load();
+      audio.play().then(function () {
+        isPlaying = true;
+        playBtn.classList.add('playing');
+        visualizer.classList.add('active');
+        setStatus('live', 'В эфире');
+        startPolling();
+      }).catch(function () {});
 
       // --- Play / Pause ---
       playBtn.addEventListener('click', function () {

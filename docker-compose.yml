@@ -92,6 +92,7 @@ services:
     volumes:
       - libretime-storage:/srv/libretime
       - ./config.yml:/etc/libretime/config.yml:ro
+      - scheduler-cache:/app/scheduler
 
   playout:
     image: ghcr.io/libretime/libretime-playout:latest
@@ -107,6 +108,7 @@ services:
     volumes:
       - libretime-storage:/srv/libretime
       - ./config.yml:/etc/libretime/config.yml:ro
+      - scheduler-cache:/app/scheduler
 
   legacy:
     image: ghcr.io/libretime/libretime-legacy:latest
@@ -135,3 +137,4 @@ volumes:
   postgres-data:
   rabbitmq-data:
   libretime-storage:
+  scheduler-cache:
