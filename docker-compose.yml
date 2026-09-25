@@ -78,6 +78,21 @@ services:
       - libretime-storage:/srv/libretime
       - ./config.yml:/etc/libretime/config.yml:ro
 
+  liquidsoap:
+    image: ghcr.io/libretime/libretime-playout:latest
+    restart: unless-stopped
+    command: /usr/local/bin/libretime-liquidsoap
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      icecast:
+        condition: service_started
+    volumes:
+      - libretime-storage:/srv/libretime
+      - ./config.yml:/etc/libretime/config.yml:ro
+
   playout:
     image: ghcr.io/libretime/libretime-playout:latest
     restart: unless-stopped
@@ -86,7 +101,7 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      icecast:
+      liquidsoap:
         condition: service_started
     volumes:
       - libretime-storage:/srv/libretime
