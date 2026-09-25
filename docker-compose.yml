@@ -97,8 +97,6 @@ services:
   libretime-legacy:
     image: ghcr.io/libretime/libretime-legacy:latest
     restart: unless-stopped
-    ports:
-      - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -107,6 +105,17 @@ services:
     volumes:
       - libretime-storage:/srv/libretime
       - ./config.yml:/etc/libretime/config.yml:ro
+
+  libretime-nginx:
+    image: ghcr.io/libretime/libretime-nginx:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - libretime-api
+      - libretime-legacy
+    volumes:
+      - libretime-storage:/srv/libretime
 
 volumes:
   postgres-data:
