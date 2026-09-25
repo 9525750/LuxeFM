@@ -444,8 +444,8 @@
 
       // --- Configuration ---
       const CONFIG = {
-        streamUrl: '/stream',
-        liveInfoUrl: '/api/live-info-v2/',
+        streamUrl: '/listen/luxe_fm/radio.mp3',
+        nowPlayingUrl: '/api/nowplaying/1',
         pollInterval: 10000,
       };
 
@@ -581,27 +581,17 @@
 
       async function refreshNowPlaying() {
         try {
-          var r = await fetch(CONFIG.liveInfoUrl);
+          var r = await fetch(CONFIG.nowPlayingUrl);
           if (!r.ok) return;
           var d = await r.json();
 
-          var cur = d.station && d.station.tracks && d.station.tracks.current;
-          if (!cur && d.tracks) cur = d.tracks.current;
-          if (!cur && d.current) cur = d.current;
-
-          if (cur) {
-            var name = cur.name || cur.title || '';
-            var artist = '';
-            if (cur.metadata && cur.metadata.artist_name) {
-              artist = cur.metadata.artist_name;
-            } else if (cur.artist) {
-              artist = cur.artist;
-            }
+          if (d.now_playing && d.now_playing.song) {
+            var song = d.now_playing.song;
+            var name = song.title || song.text || '';
+            var artist = song.artist || '';
             if (name) updateTrack(name, artist);
           }
-        } catch (e) {
-          // Silently ignore fetch errors to avoid disrupting playback
-        }
+        } catch (e) {}
       }
 
       function updateTrack(title, artist) {
