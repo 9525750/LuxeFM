@@ -34,4 +34,3 @@ stream:
           format: mp3
           bitrate: 128
           channels: 2
-          samplerate: 44100
