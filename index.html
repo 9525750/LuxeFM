@@ -367,6 +367,10 @@
 
     /* --- Responsive --- */
     @media (max-width: 480px) {
+      .container {
+        margin-top: -10vh;
+        gap: 28px;
+      }
       .brand-name {
         font-size: 2.4rem;
       }
@@ -375,6 +379,13 @@
       }
       .container {
         gap: 32px;
+      }
+    }
+
+    @media (max-height: 700px) {
+      .container {
+        margin-top: -12vh;
+        gap: 20px;
       }
     }
 
