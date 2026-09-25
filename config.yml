@@ -1,6 +1,7 @@
 general:
   public_url: https://luxefm.example.com
   secret_key: change_me_to_random_string
+  api_key: change_me_to_random_string
   allowed_cors_origins:
     - https://luxefm.example.com
 
@@ -33,4 +34,3 @@ stream:
         audio:
           format: mp3
           bitrate: 128
-          channels: 2
